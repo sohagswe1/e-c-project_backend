@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "products")
@@ -29,4 +30,9 @@ public class Product {
     private BigDecimal price;
     
     private Integer stock;
+    
+    @ManyToOne
+    @JoinColumn(name = "category_id", nullable = false)
+    @JsonBackReference
+    private Category category;
 }
