@@ -30,6 +30,9 @@ public class User {
     
     private String phone;
     
+    @Column(columnDefinition = "TEXT")
+    private String address;
+    
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;

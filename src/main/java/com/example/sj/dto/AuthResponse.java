@@ -16,6 +16,7 @@ public class AuthResponse {
     private Integer userId;
     private String email;
     private String name;
+    private Integer roleId;  // Add roleId field
     private String message;
     
     public AuthResponse(String token, Integer userId, String email, String name) {
@@ -23,5 +24,13 @@ public class AuthResponse {
         this.userId = userId;
         this.email = email;
         this.name = name;
+    }
+
+    public AuthResponse(String token, Integer userId, String email, String name, Integer roleId) {
+        this.token = token;
+        this.userId = userId;
+        this.email = email;
+        this.name = name;
+        this.roleId = roleId;
     }
 }

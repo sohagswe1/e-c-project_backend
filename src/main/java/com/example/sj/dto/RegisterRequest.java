@@ -14,5 +14,15 @@ public class RegisterRequest {
     private String email;
     private String password;
     private String phone;
+    private String address;
     private Integer roleId;
+    
+    // Customer-specific fields
+    private String deliveryAddress;
+    
+    // Seller-specific fields
+    private String shopName;
+    private String tradeLicense;
+    private String bankAccount;
+    private String sellerPhone;
 }

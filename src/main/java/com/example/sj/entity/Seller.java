@@ -29,10 +29,18 @@ public class Seller {
     @Column(name = "trade_license")
     private String tradeLicense;
     
+    private String phone;
+    
     @Column(name = "bank_account")
     private String bankAccount;
     
     private String status;
+    
+    @Column(name = "image_url")
+    private String imageUrl;
+    
+    @Column(name = "image_id")
+    private String imageId;
     
     @Column(name = "created_at")
     private LocalDateTime createdAt;

@@ -1,12 +1,15 @@
 package com.example.sj.configuration;
 
-import com.example.sj.security.JwtAuthenticationFilter;
+import java.util.Arrays;
+import java.util.Collections;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -14,6 +17,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+
+import com.example.sj.security.JwtAuthenticationFilter;
 
 /**
  * Spring Security Configuration
@@ -24,12 +30,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * - Defines public and protected endpoints
  * - Adds JWT authentication filter for token validation
  * - Configures password encoding with BCrypt (for registration)
+ * - EnableMethodSecurity enables @PreAuthorize, @PostAuthorize annotations
  * 
  * @author Application Team
  * @version 2.0
  */
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration {
 
     @Autowired
@@ -58,16 +66,32 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(request -> {
+                    CorsConfiguration corsConfig = new CorsConfiguration();
+                    corsConfig.setAllowedOrigins(Arrays.asList(
+                        "http://localhost:3000",
+                        "http://127.0.0.1:3000",
+                        "http://localhost:8080"
+                    ));
+                    corsConfig.setAllowedMethods(Arrays.asList(
+                        "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
+                    ));
+                    corsConfig.setAllowedHeaders(Collections.singletonList("*"));
+                    corsConfig.setAllowCredentials(true);
+                    corsConfig.setMaxAge(3600L);
+                    return corsConfig;
+                }))
                 .csrf(csrf -> csrf.disable())
                 
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/roles").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/roles").permitAll()
-                        .requestMatchers("/api/categories").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
-                        .anyRequest().authenticated()
+                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                    .requestMatchers("/api/auth/**").permitAll()
+                    .requestMatchers("/api/ai/**").permitAll()
+                    .requestMatchers("/api/roles").permitAll()
+                    .requestMatchers("/api/products").permitAll()
+                    .requestMatchers("/api/products/**").permitAll()
+                    .requestMatchers("/upload/**").permitAll()
+                    .anyRequest().authenticated()
                 )
                 
                 .sessionManagement(session -> session

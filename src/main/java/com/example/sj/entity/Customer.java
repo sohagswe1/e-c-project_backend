@@ -22,6 +22,10 @@ public class Customer {
     @JoinColumn(name = "user_id")
     private User user;
     
-    @Column(name = "loyalty_points")
     private Integer loyaltyPoints;
+    
+    @Column(columnDefinition = "TEXT")
+    private String deliveryAddress;
+    
+    private String phone;
 }

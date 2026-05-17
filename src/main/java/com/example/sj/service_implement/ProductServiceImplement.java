@@ -1,10 +1,14 @@
 package com.example.sj.service_implement;
 
+import com.example.sj.dto.ProductDTO;
+import com.example.sj.entity.Category;
 import com.example.sj.entity.Product;
+import com.example.sj.entity.Seller;
 import com.example.sj.repository.ProductRepository;
 import com.example.sj.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,11 +17,6 @@ public class ProductServiceImplement implements ProductService {
     
     @Autowired
     private ProductRepository productRepository;
-    
-    @Override
-    public Product save(Product product) {
-        return productRepository.save(product);
-    }
     
     @Override
     public Optional<Product> findById(Integer id) {
@@ -30,16 +29,53 @@ public class ProductServiceImplement implements ProductService {
     }
     
     @Override
-    public Product update(Integer id, Product product) {
+    public List<Product> findBySeller(Seller seller) {
+        return productRepository.findBySeller(seller);
+    }
+    
+    /**
+     * DTO থেকে Product Entity তৈরি করে save করা
+     */
+    @Override
+    public Product saveFromDTO(ProductDTO productDTO, Seller seller, Category category) {
+        Product product = Product.builder()
+                .name(productDTO.getName())
+                .description(productDTO.getDescription())
+                .price(productDTO.getPrice())
+                .stock(productDTO.getStock() != null ? productDTO.getStock() : 0)
+                .image(productDTO.getImage())
+                .seller(seller)
+                .category(category)
+                .createdAt(LocalDateTime.now())
+                .build();
+        
+        return productRepository.save(product);
+    }
+    
+    /**
+     * DTO থেকে Product Entity update করা
+     */
+    @Override
+    public Product updateFromDTO(Integer id, ProductDTO productDTO) {
         return productRepository.findById(id).map(existingProduct -> {
-            Product updatedProduct = Product.builder()
-                    .id(existingProduct.getId())
-                    .name(product.getName())
-                    .description(product.getDescription())
-                    .price(product.getPrice())
-                    .stock(product.getStock())
-                    .build();
-            return productRepository.save(updatedProduct);
+            // DTO থেকে Entity update করা
+            if (productDTO.getName() != null) {
+                existingProduct.setName(productDTO.getName());
+            }
+            if (productDTO.getDescription() != null) {
+                existingProduct.setDescription(productDTO.getDescription());
+            }
+            if (productDTO.getPrice() != null) {
+                existingProduct.setPrice(productDTO.getPrice());
+            }
+            if (productDTO.getStock() != null) {
+                existingProduct.setStock(productDTO.getStock());
+            }
+            if (productDTO.getImage() != null) {
+                existingProduct.setImage(productDTO.getImage());
+            }
+            
+            return productRepository.save(existingProduct);
         }).orElseThrow(() -> new RuntimeException("Product not found"));
     }
     

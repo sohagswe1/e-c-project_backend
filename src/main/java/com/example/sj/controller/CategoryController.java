@@ -16,9 +16,11 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
     
-    @PostMapping
-    public ResponseEntity<Category> createCategory(@RequestBody Category category) {
-        return new ResponseEntity<>(categoryService.save(category), HttpStatus.CREATED);
+    @GetMapping
+    public ResponseEntity<List<Category>> getAllCategories() {
+        List<Category> categories = categoryService.findAll();
+        System.out.println("✅ Fetching all categories: " + categories.size() + " found");
+        return ResponseEntity.ok(categories);
     }
     
     @GetMapping("/{id}")
@@ -26,14 +28,19 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.findById(id));
     }
     
-    @GetMapping
-    public ResponseEntity<List<Category>> getAllCategories() {
-        return ResponseEntity.ok(categoryService.findAll());
+    @PostMapping
+    public ResponseEntity<Category> createCategory(@RequestBody Category category) {
+        return new ResponseEntity<>(categoryService.save(category), HttpStatus.CREATED);
     }
     
     @PutMapping("/{id}")
     public ResponseEntity<Category> updateCategory(@PathVariable Integer id, @RequestBody Category category) {
-        return ResponseEntity.ok(categoryService.update(id, category));
+        Optional<Category> existingCategory = categoryService.findById(id);
+        if (existingCategory.isPresent()) {
+            category.setId(id);
+            return ResponseEntity.ok(categoryService.save(category));
+        }
+        return ResponseEntity.notFound().build();
     }
     
     @DeleteMapping("/{id}")
